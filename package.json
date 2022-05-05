@@ -2,6 +2,7 @@
   "name": "tjk-web3",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://tomozard.github.io",
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
@@ -14,6 +15,7 @@
     "@types/node": "^16.11.33",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.3",
+    "gh-pages": "^3.2.3",
     "moralis": "^1.6.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -27,7 +29,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
