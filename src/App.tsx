@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Market from "./pages/Market";
 import Collections from "./pages/Collections";
@@ -9,12 +9,12 @@ function App() {
   return (
     <>
       <MyAppbar />
-      <Routes>
+      <BrowserRouter basename="/tjk-web3">
         <Route path="/" element={<Home />} />
         <Route path="market" element={<Market />} />
         <Route path="collections" element={<Collections />} />
         <Route path="faucet" element={<Faucet />} />
-      </Routes>
+      </BrowserRouter>
     </>
   );
 }
