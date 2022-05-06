@@ -31,10 +31,10 @@ function Collections() {
   useEffect(() => {
     if (isAuthenticated && user) {
       fetchNFTs(user.get("ethAddress")).then((nfts) => {
-        console.log(
-          "🚀 ~ file: Collections.tsx ~ line 34 ~ fetchNFTs ~ nfts",
-          nfts
-        );
+        // console.log(
+        //   "🚀 ~ file: Collections.tsx ~ line 34 ~ fetchNFTs ~ nfts",
+        //   nfts
+        // );
         setNftBalances(nfts);
       });
     }

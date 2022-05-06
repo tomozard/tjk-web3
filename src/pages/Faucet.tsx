@@ -89,7 +89,7 @@ function Faucet() {
         spender: faucetAddress,
       },
     });
-    console.log(allowance);
+    // console.log(allowance);
 
     return allowance;
   };
@@ -105,7 +105,9 @@ function Faucet() {
       faucetAbi,
       signer
     );
-    await faucetContractWithSigner.requestTokens();
+    const requestToken = await faucetContractWithSigner.requestTokens();
+    const tx = await requestToken.wait();
+    if (tx && user) updateUI(user);
   };
 
   const fetchTokenSymbol = async () => {
@@ -119,7 +121,7 @@ function Faucet() {
       // @ts-ignore-end
       params: {},
     });
-    console.log(symbol);
+    // console.log(symbol);
 
     return symbol;
   };
@@ -135,15 +137,16 @@ function Faucet() {
         TOKEN_ABI,
         signer
       );
-
       const approve = await tokenContractWithSigner.approve(
         faucetAddress,
         Moralis.Units.ETH(data.amount)
       );
-      console.log(
-        "🚀 ~ file: Faucet.tsx ~ line 133 ~ constonSetAllowance:SubmitHandler<InputAllowance>= ~ approve",
-        approve
-      );
+      const tx = await approve.wait();
+      if (tx && user) updateUI(user);
+      // console.log(
+      //   "🚀 ~ file: Faucet.tsx ~ line 133 ~ constonSetAllowance:SubmitHandler<InputAllowance>= ~ approve",
+      //   approve
+      // );
     }
   };
 
@@ -158,33 +161,42 @@ function Faucet() {
         FAUCET_ABI,
         signer
       );
-
       const donate = await faucetContractWithSigner.donateTofaucet(
         Moralis.Units.ETH(data.amount)
       );
-      console.log(
-        "🚀 ~ file: Faucet.tsx ~ line 133 ~ constonSetAllowance:SubmitHandler<InputAllowance>= ~ donate",
-        donate
-      );
+      const tx = await donate.wait();
+      if (tx && user) updateUI(user);
+      // console.log(
+      //   "🚀 ~ file: Faucet.tsx ~ line 133 ~ constonSetAllowance:SubmitHandler<InputAllowance>= ~ donate",
+      //   donate
+      // );
+      // console.log(
+      //   "🚀 ~ file: Faucet.tsx ~ line 166 ~ constonDonate:SubmitHandler<InputAllowance>= ~ tx",
+      //   tx
+      // );
     }
+  };
+
+  const updateUI = (user: Moralis.User<Moralis.Attributes>) => {
+    getFaucetBalance("0x700C3d73ADCE643C1F3409a18aE9E8FAE15fcfF9").then(
+      (balance) => {
+        setFaucetBalances(balance);
+      }
+    );
+    getTJKBalance(user.get("ethAddress")).then((balance) => {
+      setTokenBalances(balance);
+    });
+    fetchTokenAllowance(user.get("ethAddress")).then((allowance) => {
+      setTokenAllowance(allowance);
+    });
+    fetchTokenSymbol().then((symbol) => {
+      setTokenSymbol(symbol);
+    });
   };
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      getFaucetBalance("0x700C3d73ADCE643C1F3409a18aE9E8FAE15fcfF9").then(
-        (balance) => {
-          setFaucetBalances(balance);
-        }
-      );
-      getTJKBalance(user.get("ethAddress")).then((balance) => {
-        setTokenBalances(balance);
-      });
-      fetchTokenAllowance(user.get("ethAddress")).then((allowance) => {
-        setTokenAllowance(allowance);
-      });
-      fetchTokenSymbol().then((symbol) => {
-        setTokenSymbol(symbol);
-      });
+      updateUI(user);
     }
   }, []);
 
