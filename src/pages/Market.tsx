@@ -96,12 +96,12 @@ function Market() {
     const tx = await nft.wait();
     console.log("🚀 ~ file: Market.tsx ~ line 53 ~ mintNFT ~ tx", tx);
     if (tx && user) {
-      setTJKNft([]);
-      console.log("1");
-      await timeout(4000);
-      console.log("2");
+      // setTJKNft([]);
+      // console.log("1");
+      await timeout(5000);
+      // console.log("2");
       updateUI(user);
-      console.log("3");
+      // console.log("3");
     }
     // navigate("/market");
     // console.log(nft);
