@@ -2,7 +2,7 @@
   "name": "tjk-web3",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://tomozard.github.io/tjk-web3/",
+  "homepage": ".",
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
@@ -19,6 +19,7 @@
     "moralis": "^1.6.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "react-hook-form": "^7.30.0",
     "react-moralis": "^1.3.5",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",

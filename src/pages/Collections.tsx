@@ -13,9 +13,9 @@ import {
 } from "@mui/material";
 
 function Collections() {
-  const { isAuthenticated, account } = useMoralis();
+  const { isAuthenticated, user } = useMoralis();
   const navigate = useNavigate();
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     navigate("/");
   }
   const Web3Api = useMoralisWeb3Api();
@@ -29,18 +29,16 @@ function Collections() {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      if (account) {
-        fetchNFTs(account).then((nfts) => {
-          console.log(
-            "🚀 ~ file: Collections.tsx ~ line 34 ~ fetchNFTs ~ nfts",
-            nfts
-          );
-          setNftBalances(nfts);
-        });
-      }
+    if (isAuthenticated && user) {
+      fetchNFTs(user.get("ethAddress")).then((nfts) => {
+        console.log(
+          "🚀 ~ file: Collections.tsx ~ line 34 ~ fetchNFTs ~ nfts",
+          nfts
+        );
+        setNftBalances(nfts);
+      });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   const [nftBalances, setNftBalances] = useState<nftBalanceProps>();
   return (

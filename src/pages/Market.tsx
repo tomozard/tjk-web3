@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardActionArea,
-  CardActions,
   CardContent,
   CardHeader,
   CardMedia,
@@ -18,9 +17,9 @@ import { nftBalanceProps } from "../interface/token";
 import NFT_ABI from "../abi/nft_abi.json";
 
 function Market() {
-  const { isAuthenticated, account } = useMoralis();
+  const { isAuthenticated, user } = useMoralis();
   const navigate = useNavigate();
-  if (!isAuthenticated && account) {
+  if (!isAuthenticated || !user) {
     navigate("/");
   }
 
@@ -53,12 +52,12 @@ function Market() {
   };
 
   useEffect(() => {
-    if (isAuthenticated && account) {
-      fetchTJKNFTs(account).then((nfts) => {
+    if (isAuthenticated && user) {
+      fetchTJKNFTs(user?.get("ethAddress")).then((nfts) => {
         setTJKNft(nfts);
       });
     }
-  }, [isAuthenticated, account]);
+  }, [isAuthenticated, user]);
   return (
     <>
       <Container maxWidth="lg">

@@ -119,15 +119,20 @@ function MyAppbar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
-          >
-            {appTitle}
-          </Typography>
-
+          <Link to="/">
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                color: "white",
+                mr: 2,
+                display: { xs: "none", md: "flex" },
+              }}
+            >
+              {appTitle}
+            </Typography>
+          </Link>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -159,7 +164,7 @@ function MyAppbar() {
             >
               {isAuthenticated &&
                 pages.map((page) => (
-                  <MenuItem key={page.route} onClick={handleCloseNavMenu}>
+                  <MenuItem key={page.label} onClick={handleCloseNavMenu}>
                     <Link to={page.route}>
                       <Typography textAlign="center">{page.label}</Typography>
                     </Link>
@@ -178,7 +183,7 @@ function MyAppbar() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {isAuthenticated &&
               pages.map((page) => (
-                <Link to={page.route}>
+                <Link to={page.route} key={page.label}>
                   <Button
                     key={page.route}
                     onClick={handleCloseNavMenu}

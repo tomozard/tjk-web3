@@ -9,14 +9,7 @@ import {
 } from "../interface/token";
 import { Container } from "@mui/material";
 function Home() {
-  const {
-    authenticate,
-    isAuthenticated,
-    isAuthenticating,
-    user,
-    account,
-    logout,
-  } = useMoralis();
+  const { authenticate, isAuthenticated, user, logout } = useMoralis();
   const [nativeBalance, setNativeBalance] = useState<nativeBalanceProps>({
     balance: "0",
   });
@@ -26,32 +19,30 @@ function Home() {
   const Web3Api = useMoralisWeb3Api();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      if (account) {
-        fetchNativeBalance(account).then((balances) => {
-          setNativeBalance(balances);
-        });
-        fetchTokenBalances(account).then((balances) => {
-          setTokenBalances(balances);
-        });
-        fetchNFTs(account).then((nfts) => {
-          setNftBalances(nfts);
-        });
-        fetchAllNFTs(account).then((nfts) => {
-          setAllNft(nfts);
-        });
-        getTJKBalance(account).then((balance) => {
-          console.log(
-            "🚀 ~ file: App.tsx ~ line 79 ~ getTJKBalance ~ balance",
-            balance
-          );
-        });
-        // mintTJK(account, Moralis.Units.ETH(1)).then((mint) => {
-        //   console.log("🚀 ~ file: App.tsx ~ line 79 ~ mintTJK ~ mint", mint);
-        // });
-      }
+    if (isAuthenticated && user) {
+      fetchNativeBalance(user?.get("ethAddress")).then((balances) => {
+        setNativeBalance(balances);
+      });
+      fetchTokenBalances(user?.get("ethAddress")).then((balances) => {
+        setTokenBalances(balances);
+      });
+      fetchNFTs(user?.get("ethAddress")).then((nfts) => {
+        setNftBalances(nfts);
+      });
+      fetchAllNFTs(user?.get("ethAddress")).then((nfts) => {
+        setAllNft(nfts);
+      });
+      // getTJKBalance(user?.get("ethAddress")).then((balance) => {
+      //   console.log(
+      //     "🚀 ~ file: App.tsx ~ line 79 ~ getTJKBalance ~ balance",
+      //     balance
+      //   );
+      // });
+      // mintTJK(account, Moralis.Units.ETH(1)).then((mint) => {
+      //   console.log("🚀 ~ file: App.tsx ~ line 79 ~ mintTJK ~ mint", mint);
+      // });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   const fetchNativeBalance = async (address: string) => {
     const balances = await Web3Api.account.getNativeBalance({
@@ -107,32 +98,13 @@ function Home() {
     return balanceOfTJK;
   };
 
-  // const mintTJK = async (to: string, amount: string) => {
-  //   const mint = await Moralis.Web3API.native({
-  //     // chain: "rinkeby",
-  //     // address: "0x2904c76f66b57A77FaA446533428B66a431c6b67",
-  //     // function_name: "mint",
-  //     // // @ts-ignore-start
-  //     // abi: TOKEN_ABI,
-  //     // // @ts-ignore-end
-  //     // params: { to, amount },
-  //     chain: "rinkeby",
-  //     contractAddress: "0x2904c76f66b57A77FaA446533428B66a431c6b67",
-  //     functionName: "mint",
-  //     abi: TOKEN_ABI,
-  //     params: { to, amount },
-  //   });
-
-  //   return mint;
-  // };
-
   return (
     <Container maxWidth="lg">
       <div>
         <h1>Moralis Hello World!</h1>
-        {isAuthenticated && (
+        {isAuthenticated && user && (
           <>
-            <p>Account Address : {account}</p>
+            <p>Account Address : {user?.get("ethAddress")}</p>
             <p>
               {"Coin Balance : " +
                 Moralis.Units.FromWei(nativeBalance.balance) ?? ""}
@@ -147,10 +119,10 @@ function Home() {
                 </li>
               ))}
             </ul>
-            <p>{"NFT Total: " + nftBalances?.total}</p>
+            {/* <p>{"NFT Total: " + nftBalances?.total}</p>
             <ul>
               {nftBalances?.result?.map((nft) => (
-                <li key={nft.token_id}>
+                <li key={nft.block_number}>
                   {nft.metadata &&
                     nft.name +
                       "#" +
@@ -194,7 +166,7 @@ function Home() {
                   )}
                 </li>
               ))}
-            </ul>
+            </ul> */}
           </>
         )}
       </div>

@@ -11,26 +11,47 @@ import {
   Stack,
   TextField,
   Typography,
+  Alert,
+  Grid,
 } from "@mui/material";
 import TOKEN_ABI from "../abi/token_abi.json";
 import FAUCET_ABI from "../abi/faucet_abi.json";
 import { useMoralisWeb3Api } from "react-moralis";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+type InputAllowance = {
+  amount: string;
+};
+
 function Faucet() {
-  const { isAuthenticated, account } = useMoralis();
+  const { isAuthenticated, user } = useMoralis();
   const navigate = useNavigate();
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     navigate("/");
   }
   const Web3Api = useMoralisWeb3Api();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<InputAllowance>();
+  const {
+    register: registerDonate,
+    handleSubmit: handleSubmitDonate,
+    formState: { errors: errorsDoante },
+  } = useForm<InputAllowance>();
   const [faucetBalances, setFaucetBalances] = useState<string>("0");
   const [tokenBalances, setTokenBalances] = useState<string>("0");
   const [tokenAllowance, setTokenAllowance] = useState<string>();
   const [tokenSymbol, setTokenSymbol] = useState<string>();
+  const tokenAddress = "0x2904c76f66b57A77FaA446533428B66a431c6b67";
+  const nftAddress = "0x1bc3c084052D1e31E925CA541D467cD8F1f2dF0c";
+  const faucetAddress = "0x700C3d73ADCE643C1F3409a18aE9E8FAE15fcfF9";
 
   const getFaucetBalance = async (address: string) => {
     const balanceOfFaucet = await Moralis.Web3API.native.runContractFunction({
       chain: "rinkeby",
-      address: "0x2904c76f66b57A77FaA446533428B66a431c6b67",
+      address: tokenAddress,
       function_name: "balanceOf",
       // @ts-ignore-start
       abi: TOKEN_ABI,
@@ -44,7 +65,7 @@ function Faucet() {
   const getTJKBalance = async (address: string) => {
     const balanceOfTJK = await Moralis.Web3API.native.runContractFunction({
       chain: "rinkeby",
-      address: "0x2904c76f66b57A77FaA446533428B66a431c6b67",
+      address: tokenAddress,
       function_name: "balanceOf",
       // @ts-ignore-start
       abi: TOKEN_ABI,
@@ -58,14 +79,14 @@ function Faucet() {
   const fetchTokenAllowance = async (address: string) => {
     const allowance = await Moralis.Web3API.native.runContractFunction({
       chain: "rinkeby",
-      address: "0x2904c76f66b57A77FaA446533428B66a431c6b67",
+      address: tokenAddress,
       function_name: "allowance",
       // @ts-ignore-start
       abi: TOKEN_ABI,
       // @ts-ignore-end
       params: {
         owner: address,
-        spender: "0x700C3d73ADCE643C1F3409a18aE9E8FAE15fcfF9",
+        spender: faucetAddress,
       },
     });
     console.log(allowance);
@@ -77,7 +98,6 @@ function Faucet() {
     const web3Provider = await Moralis.enableWeb3();
     const signer = web3Provider.getSigner();
     const ethers = Moralis.web3Library;
-    const faucetAddress = "0x700C3d73ADCE643C1F3409a18aE9E8FAE15fcfF9";
     const faucetAbi = FAUCET_ABI;
 
     const faucetContractWithSigner = new ethers.Contract(
@@ -92,7 +112,7 @@ function Faucet() {
     //Get metadata for one token. Ex: USDT token on ETH
     const symbol = await Moralis.Web3API.native.runContractFunction({
       chain: "rinkeby",
-      address: "0x2904c76f66b57A77FaA446533428B66a431c6b67",
+      address: tokenAddress,
       function_name: "symbol",
       // @ts-ignore-start
       abi: TOKEN_ABI,
@@ -104,17 +124,62 @@ function Faucet() {
     return symbol;
   };
 
+  const onSetAllowance: SubmitHandler<InputAllowance> = async (data) => {
+    // console.log("🚀 ~ file: Faucet.tsx ~ line 120 ~ Faucet ~ data", data);
+    if (Number(data.amount) > 0) {
+      const web3Provider = await Moralis.enableWeb3();
+      const signer = web3Provider.getSigner();
+      const ethers = Moralis.web3Library;
+      const tokenContractWithSigner = new ethers.Contract(
+        tokenAddress,
+        TOKEN_ABI,
+        signer
+      );
+
+      const approve = await tokenContractWithSigner.approve(
+        faucetAddress,
+        Moralis.Units.ETH(data.amount)
+      );
+      console.log(
+        "🚀 ~ file: Faucet.tsx ~ line 133 ~ constonSetAllowance:SubmitHandler<InputAllowance>= ~ approve",
+        approve
+      );
+    }
+  };
+
+  const onDonate: SubmitHandler<InputAllowance> = async (data) => {
+    // console.log("🚀 ~ file: Faucet.tsx ~ line 120 ~ Faucet ~ data", data);
+    if (Number(data.amount) > 0) {
+      const web3Provider = await Moralis.enableWeb3();
+      const signer = web3Provider.getSigner();
+      const ethers = Moralis.web3Library;
+      const faucetContractWithSigner = new ethers.Contract(
+        faucetAddress,
+        FAUCET_ABI,
+        signer
+      );
+
+      const donate = await faucetContractWithSigner.donateTofaucet(
+        Moralis.Units.ETH(data.amount)
+      );
+      console.log(
+        "🚀 ~ file: Faucet.tsx ~ line 133 ~ constonSetAllowance:SubmitHandler<InputAllowance>= ~ donate",
+        donate
+      );
+    }
+  };
+
   useEffect(() => {
-    if (isAuthenticated && account) {
+    if (isAuthenticated && user) {
       getFaucetBalance("0x700C3d73ADCE643C1F3409a18aE9E8FAE15fcfF9").then(
         (balance) => {
           setFaucetBalances(balance);
         }
       );
-      getTJKBalance(account).then((balance) => {
+      getTJKBalance(user.get("ethAddress")).then((balance) => {
         setTokenBalances(balance);
       });
-      fetchTokenAllowance(account).then((allowance) => {
+      fetchTokenAllowance(user.get("ethAddress")).then((allowance) => {
         setTokenAllowance(allowance);
       });
       fetchTokenSymbol().then((symbol) => {
@@ -164,18 +229,46 @@ function Faucet() {
               </Typography>
             </CardContent>
             <CardActions>
-              <TextField
-                autoFocus
-                // margin="dense"
-                id="allowance"
-                label="Set Amount Allowance"
-                type="number"
-                fullWidth
-                variant="standard"
-              />
-              <Button variant="contained" size="large">
-                Set
-              </Button>
+              <form
+                onSubmit={handleSubmit(onSetAllowance)}
+                noValidate
+                style={{ width: "100%" }}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={9}>
+                    <TextField
+                      label="Input Amount Allowance"
+                      variant="standard"
+                      fullWidth
+                      defaultValue={Moralis.Units.FromWei(tokenBalances) ?? 0}
+                      type="number"
+                      {...register("amount", {
+                        required: true,
+                        min: 0,
+                        max: Number(Moralis.Units.FromWei(tokenBalances)),
+                      })}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      type="submit"
+                      fullWidth
+                    >
+                      Set
+                    </Button>
+                  </Grid>
+                  {errors.amount && (
+                    <Grid item xs={12}>
+                      <Alert severity="error">
+                        This field is required and must be 0 to{" "}
+                        {Moralis.Units.FromWei(tokenBalances)!}{" "}
+                      </Alert>
+                    </Grid>
+                  )}
+                </Grid>
+              </form>
             </CardActions>
           </Card>
 
@@ -194,18 +287,46 @@ function Faucet() {
               </Typography>
             </CardContent>
             <CardActions>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="name"
-                label="Donate Amount"
-                type="number"
-                fullWidth
-                variant="standard"
-              />
-              <Button variant="contained" size="large">
-                Donate
-              </Button>
+              <form
+                onSubmit={handleSubmitDonate(onDonate)}
+                noValidate
+                style={{ width: "100%" }}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={9}>
+                    <TextField
+                      label="Input Donate Amount"
+                      variant="standard"
+                      fullWidth
+                      defaultValue={Moralis.Units.FromWei(tokenBalances) ?? 0}
+                      type="number"
+                      {...registerDonate("amount", {
+                        required: true,
+                        min: 0,
+                        max: Number(Moralis.Units.FromWei(tokenBalances)),
+                      })}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      type="submit"
+                      fullWidth
+                    >
+                      Donate
+                    </Button>
+                  </Grid>
+                  {errorsDoante.amount && (
+                    <Grid item xs={12}>
+                      <Alert severity="error">
+                        This field is required and must be 0 to{" "}
+                        {Moralis.Units.FromWei(tokenBalances)!}{" "}
+                      </Alert>
+                    </Grid>
+                  )}
+                </Grid>
+              </form>
             </CardActions>
           </Card>
         </Stack>
