@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <MoralisProvider serverUrl={MORALIS_SERVER_URL} appId={MORALIS_APP_ID}>
-      <BrowserRouter>
+      <BrowserRouter basename="/tjk-web3">
         <App />
       </BrowserRouter>
     </MoralisProvider>
