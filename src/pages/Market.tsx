@@ -98,7 +98,7 @@ function Market() {
     if (tx && user) {
       setTJKNft([]);
       console.log("1");
-      await timeout(2500);
+      await timeout(4000);
       console.log("2");
       updateUI(user);
       console.log("3");
